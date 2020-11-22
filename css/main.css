@@ -29,10 +29,37 @@ table {
 	height: 30px;
 	font-size: 1.2rem;
 	top: -30px;
+	left: -3px;
 	border-top-right-radius: 3px;
-	padding: 5px;
+	padding: 5px 10px;
 	cursor: pointer;
 }
+
+.settings .pause {
+	background: rgba(0, 0, 0, 1);
+	height: 30px;
+	font-size: 1.2rem;
+	top: -30px;
+	left: 20px;
+	border-top-right-radius: 3px;
+	border-top-left-radius: 3px;
+	padding: 5px 10px;
+	cursor: pointer;
+}
+
+
+.settings .save {
+	background: rgba(0, 0, 0, 1);
+	height: 30px;
+	font-size: 1.2rem;
+	top: -30px;
+	left: 40px;
+	border-top-right-radius: 3px;
+	border-top-left-radius: 3px;
+	padding: 5px 10px;
+	cursor: pointer;
+}
+
 
 .settings .trash {
 	background: rgba(0, 0, 0, 1);
@@ -41,7 +68,7 @@ table {
 	top: -30px;
 	right: 0;
 	border-top-left-radius: 3px;
-	padding: 5px;
+	padding: 5px 10px;
 	cursor: pointer;
 }
 
