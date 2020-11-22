@@ -75,7 +75,7 @@ $(function ()
 	{
 		function saveFile(fileName, urlFile)
 		{
-			let a = document.createElement("a");
+			var a = document.createElement("a");
 			a.style = "display: none";
 			document.body.appendChild(a);
 			a.href = urlFile;
@@ -84,29 +84,27 @@ $(function ()
 			window.URL.revokeObjectURL(url);
 			a.remove();
 		}
-		let textData = values.requests_all;//`El contenido del archivo que sera descargado`;
-		textData += "\n";
+		var textData = values.requests_all + "\n";
 		for (request in values.requests)
 		{
 			id = request;
 			var tr = $('#' + id);
-//			textData += JSON.stringify(tr);
-//			textData += "\n";
-//			var tim = $('.url', tr);
-//			textData += JSON.stringify(tim);
-//			textData += "\n";
+			if (!tr.is(values.filters.join(", ")))
+			{
+				//textData += saves[id].url + "\n";
+				var parsedUrl = parse_url(saves[id].url);
+				var _url = parsedUrl.protocol + "//" + parsedUrl.host + parsedUrl.pathname;
+				textData += _url + "\n"; //JSON.stringify(saves[id]);
+				var params = parse_search(parsedUrl.search);
+				for (param in params)
+				{
+					textData += "	" + param + "\n";
+				}
+			}
 		}
-
-		for (save in saves)
-		{
-			textData += JSON.stringify(saves[save]);
-			textData += "\n";
-		}
-
-		let blobData = new Blob([textData], {type: "text/plain"});
-		let url = window.URL.createObjectURL(blobData);
-		//let url = "pathExample/localFile.png"; // LocalFileDownload
-		saveFile('dump.txt',url);
+		var blobData = new Blob([textData], {type: "text/plain"});
+		var url = window.URL.createObjectURL(blobData);
+		saveFile('dump.txt', url);
 	});
 
 	$('.settings .trash').bind('click', function ()
@@ -307,7 +305,7 @@ $(function ()
 			button.addClass('active');
 			if (checked)
 			{
-				var a = values.filters.indexOf( sel );
+				var a = values.filters.indexOf(sel);
 				if (a >= 0)
 				{
 					values.filters.splice(a, 1);
@@ -315,7 +313,7 @@ $(function ()
 			}
 			else
 			{
-				values.filters.push( sel );
+				values.filters.push(sel);
 			}
 		}
 
@@ -679,9 +677,7 @@ function filter_add_item(filter, id, str)
 									'id': filter + '-' + id,
 									'checked': true
 								})
-						)
-						.append( str )
-						.append(
+						).append(str).append(
 							$('<span/>')
 								.attr('id', 'badge-' + filter + '-' + id)
 								.addClass('badge badge-right')
@@ -691,14 +687,14 @@ function filter_add_item(filter, id, str)
 		);
 
 		badge = $('#badge-' + filter, ul);
-		i = parseInt( badge.html() );
-		badge.html( i + 1 );
+		i = parseInt(badge.html());
+		badge.html(i + 1);
 	}
 	else
 	{
 		badge = $('#badge-' + filter + '-' + id, ul);
-		i = parseInt( badge.html() );
-		badge.html( i + 1 );
+		i = parseInt(badge.html());
+		badge.html(i + 1);
 	}
 }
 
@@ -933,8 +929,7 @@ chrome.runtime.onConnect.addListener(function (port)
 				.html(Message.Details.method)
 				.append(
 					body != '' ? $('<span/>').append(
-										$('<span/>')
-											.append(
+										$('<span/>').append(
 												$('<span/>')
 													.addClass('glyphicon glyphicon-list')
 													.attr({
@@ -942,8 +937,7 @@ chrome.runtime.onConnect.addListener(function (port)
 														'title': 'POST Data'
 													})
 													.data('placement', 'left')
-											)
-											.append(
+											).append(
 												$('<div/>')
 													.addClass('hidden')
 													.html(
@@ -1072,6 +1066,7 @@ chrome.runtime.onConnect.addListener(function (port)
 		values.requests[id] = undefined;
 		$('.filter.fixed').trigger('size');
 
-		saves[id] = Message.Details.url;
+		saves[id] = {};
+		saves[id].url = Message.Details.url;
 	});
 });
