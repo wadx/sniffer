@@ -95,10 +95,32 @@ $(function ()
 				var parsedUrl = parse_url(saves[id].url);
 				var _url = parsedUrl.protocol + "//" + parsedUrl.host + parsedUrl.pathname;
 				textData += _url + "\n"; //JSON.stringify(saves[id]);
-				var params = parse_search(parsedUrl.search);
-				for (param in params)
+				if (parsedUrl.search.length != 0)
 				{
-					textData += "	" + param + "\n";
+					textData += "	arguments:\n";
+					var params = parse_search(parsedUrl.search);
+					for (key in params)
+					{
+						textData += "		" + key + "=" + params[key] + "\n";
+					}
+				}
+
+				if (typeof saves[id].requestHeaders !== 'undefined')
+				{
+					textData += "	request headers:\n";
+					for (key in saves[id].requestHeaders)
+					{
+						textData += "		" + saves[id].requestHeaders[key].name + ": " + saves[id].requestHeaders[key].value + "\n";
+					}
+				}
+
+				if (typeof saves[id].responseHeaders !== 'undefined')
+				{
+					textData += "	response headers:\n";
+					for (key in saves[id].responseHeaders)
+					{
+						textData += "		" + saves[id].responseHeaders[key].name + ": " + saves[id].responseHeaders[key].value + "\n";
+					}
 				}
 			}
 		}
@@ -115,7 +137,7 @@ $(function ()
 
 		$(window).scrollTop(0);
 
-		$('.settings .count').html( '0' );
+		$('.settings .count').html('0');
 	});
 
 	$('.settings').bind('refresh', function ()
@@ -185,7 +207,7 @@ $(function ()
 							$('.settings').trigger('refresh');
 						})
 				)
-				.append( typeof rows[a] == 'object' ? rows[a][0] : rows[a] )
+				.append(typeof rows[a] == 'object' ? rows[a][0] : rows[a])
 		);
 
 		filter.append(
@@ -324,7 +346,7 @@ $(function ()
 
 		if (values.filters.length > 0)
 		{
-			$('.req').show().filter( values.filters.join(", ") ).hide();
+			$('.req').show().filter(values.filters.join(", ")).hide();
 		}
 		else
 		{
@@ -341,13 +363,13 @@ $(function ()
 
 	var filter_fixed = filter.clone();
 
-	filter.after( filter_fixed );
+	filter.after(filter_fixed);
 	filter_fixed.addClass('fixed');
 	filter_fixed.bind('size', function ()
 	{
 		$(this).children().each(function (k)
 		{
-			$(this).width( filter.children('div:eq(' + k + ')').width() || 'auto' );
+			$(this).width(filter.children('div:eq(' + k + ')').width() || 'auto');
 		});
 
 		counts();
@@ -486,14 +508,14 @@ function parse_url(url)
 function parse_domain(str)
 {
 	var regex = /[^.]+.[^.]+$/gi;
-	return regex.exec( str.toString().toLowerCase() );
+	return regex.exec(str.toString().toLowerCase());
 }
 
 
 function parse_status(str)
 {
 	var regex = /(\d{3})[\w\s.,-]*$/gi;
-	return regex.exec( str.toString() );
+	return regex.exec(str.toString());
 }
 
 
@@ -751,6 +773,12 @@ chrome.runtime.onConnect.addListener(function (port)
 		var id = tr_class + '_' + _url.crc32();
 		var tr = $('#' + id);
 
+		if (typeof saves[id] === 'undefined')
+		{
+			saves[id] = {};
+			saves[id].url = Message.Details.url;
+		}
+
 		if (!tr.is('div'))
 		{
 			if (values.requests[id] == undefined)
@@ -859,7 +887,7 @@ chrome.runtime.onConnect.addListener(function (port)
 
 				if (!options['autoscroll'])
 				{
-					$(window).scrollTop( $(window).scrollTop() + $('.req:last').height() );
+					$(window).scrollTop($(window).scrollTop() + $('.req:last').height());
 				}
 
 				counts();
@@ -947,8 +975,6 @@ chrome.runtime.onConnect.addListener(function (port)
 									)
 						: ''
 				);
-
-
 		}
 		else if (Message.Type == 'SendHeaders')
 		{
@@ -973,6 +999,7 @@ chrome.runtime.onConnect.addListener(function (port)
 						)
 				)
 
+			saves[id].requestHeaders = Message.Details.requestHeaders;
 		}
 		else if (Message.Type == 'Received')
 		{
@@ -997,6 +1024,7 @@ chrome.runtime.onConnect.addListener(function (port)
 						)
 				)
 
+			saves[id].responseHeaders = Message.Details.responseHeaders;
 		}
 		else if (Message.Type == 'Completed')
 		{
@@ -1004,7 +1032,7 @@ chrome.runtime.onConnect.addListener(function (port)
 		}
 		else if (Message.Type == 'ErrorOccurred')
 		{
-			$('.status', tr).html( Message.Details.error || 'Error!');
+			$('.status', tr).html(Message.Details.error || 'Error!');
 		}
 
 		if (Message.Details.fromCache)
@@ -1065,8 +1093,5 @@ chrome.runtime.onConnect.addListener(function (port)
 		}
 		values.requests[id] = undefined;
 		$('.filter.fixed').trigger('size');
-
-		saves[id] = {};
-		saves[id].url = Message.Details.url;
 	});
 });
